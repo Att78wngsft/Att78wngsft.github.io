@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Bola Lanjutan</title>
+    <style>
+        canvas {
+            background-color: #f0f0f0;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <a href="pusatgame.html">kembali</a>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <p>Skor: <span id="score">0</span></p>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Bola
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 10,
+            dx: 2,
+            dy: -2,
+        };
+
+        // Paddle (kontrol pemain)
+        const paddle = {
+            width: 100,
+            height: 10,
+            x: (canvas.width - 100) / 2,
+        };
+
+        // Skor
+        let score = 0;
+
+        // Fungsi untuk menggambar bola
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Fungsi untuk menggambar paddle
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.rect(paddle.x, canvas.height - paddle.height, paddle.width, paddle.height);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Fungsi utama untuk mengupdate permainan
+        function updateGameArea() {
+            // Bersihkan canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Gambar bola
+            drawBall();
+
+            // Gambar paddle
+            drawPaddle();
+
+            // Perbarui posisi bola
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Deteksi tabrakan dengan dinding atas, bawah, kiri, dan kanan
+            if (ball.y + ball.dy < ball.radius) {
+                ball.dy = -ball.dy;
+            } else if (ball.y + ball.dy > canvas.height - ball.radius) {
+                if (ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
+                    ball.dy = -ball.dy;
+                    score++;
+                    document.getElementById("score").textContent = score;
+                } else {
+                    // Game Over
+                    document.getElementById("score").textContent = "Game Over";
+                    return;
+                }
+            }
+
+            if (ball.x + ball.dx < ball.radius || ball.x + ball.dx > canvas.width - ball.radius) {
+                ball.dx = -ball.dx;
+            }
+
+            // Kontrol paddle dengan keyboard (kiri dan kanan)
+            document.addEventListener("keydown", (e) => {
+                if (e.key == "Right" || e.key == "ArrowRight") {
+                    paddle.x += 7;
+                } else if (e.key == "Left" || e.key == "ArrowLeft") {
+                    paddle.x -= 7;
+                }
+            });
+
+            // Batasi gerakan paddle ke dalam layar
+            if (paddle.x < 0) {
+                paddle.x = 0;
+            } else if (paddle.x + paddle.width > canvas.width) {
+                paddle.x = canvas.width - paddle.width;
+            }
+
+            requestAnimationFrame(updateGameArea);
+        }
+
+        // Panggil fungsi untuk memulai permainan
+        updateGameArea();
+    </script>
+    <button id="resetButton">Ulangi</button>
+
+    <script>
+        // Fungsi untuk mereset halaman saat tombol diklik
+        document.getElementById("resetButton").addEventListener("click", function () {
+            location.reload();
+        });
+    </script>
+ </body>
+</body>
+</html>
